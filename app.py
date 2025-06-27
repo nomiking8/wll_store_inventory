@@ -51,6 +51,10 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
+class SearchForm(FlaskForm):
+    search = StringField('Search', validators=[Optional()])
+    submit = SubmitField('Search')
+
 class AddInventoryForm(FlaskForm):
     domain = SelectField('Domain', choices=[('', 'Select Domain')] + [(dom, dom) for dom in VALID_DOMAINS], validators=[Optional()])
     category = SelectField('Category', choices=[('', 'Select Category')] + [(cat, cat) for cat in VALID_CATEGORIES], validators=[DataRequired()])
@@ -370,6 +374,7 @@ def view_inventory():
         page = request.args.get('page', 1, type=int)
         search = request.args.get('search', '').strip()
         user_domain = session.get('domain', 'All')
+        search_form = SearchForm()
 
         query = Inventory.query
         if user_domain != 'All':
@@ -388,7 +393,8 @@ def view_inventory():
         return render_template(
             'view_inventory.html',
             items=pagination,
-            search=search
+            search=search,
+            search_form=search_form
         )
     except Exception as e:
         logger.error(f"Error in view_inventory: {str(e)}")
@@ -486,6 +492,7 @@ def view_drs_links():
         page = request.args.get('page', 1, type=int)
         search = request.args.get('search', '').strip()
         user_domain = session.get('domain', 'All')
+        search_form = SearchForm()
 
         query = DRSLink.query
         if user_domain != 'All':
@@ -504,7 +511,8 @@ def view_drs_links():
         return render_template(
             'view_drs_links.html',
             links=pagination,
-            search=search
+            search=search,
+            search_form=search_form
         )
     except Exception as e:
         logger.error(f"Error in view_drs_links: {str(e)}")
