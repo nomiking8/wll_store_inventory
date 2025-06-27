@@ -7,29 +7,29 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     {% block head %}{% endblock %}
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans min-h-screen">
     {% set auth_routes = ['/login'] %}
     {% if request.path not in auth_routes %}
     <header class="bg-blue-600 text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">WLL Store Inventory</h1>
-            <div class="flex items-center space-x-4">
-                <div class="text-lg">{{ session.get('username', 'User')|first|upper }}</div>
+        <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center">
+            <h1 class="text-xl sm:text-2xl font-bold">WLL Store Inventory</h1>
+            <div class="flex items-center space-x-4 mt-2 sm:mt-0">
+                <div class="text-base sm:text-lg">{{ session.get('username', 'User')|first|upper }}</div>
                 <div>
-                    <p>{{ session.get('username', 'User') }}</p>
-                    <p class="text-sm">{{ session.get('user_id', 'Unknown') }}</p>
+                    <p class="text-sm sm:text-base">{{ session.get('username', 'User') }}</p>
+                    <p class="text-xs sm:text-sm">{{ session.get('user_id', 'Unknown') }}</p>
                 </div>
             </div>
         </div>
     </header>
     <nav class="bg-gray-800 text-white p-4">
-        <div class="container mx-auto flex space-x-4">
-            <a href="{{ url_for('index') }}" class="hover:bg-gray-700 px-3 py-2 rounded">Dashboard</a>
-            <a href="{{ url_for('view_inventory') }}" class="hover:bg-gray-700 px-3 py-2 rounded">View Inventory</a>
-            <a href="{{ url_for('add_inventory') }}" class="hover:bg-gray-700 px-3 py-2 rounded">Add Inventory</a>
-            <a href="{{ url_for('add_drs_links') }}" class="hover:bg-gray-700 px-3 py-2 rounded">Add DRS Links</a>
-            <a href="{{ url_for('view_drs_links') }}" class="hover:bg-gray-700 px-3 py-2 rounded">View DRS Links</a>
-            <a href="{{ url_for('logout') }}" class="hover:bg-gray-700 px-3 py-2 rounded">Logout</a>
+        <div class="container mx-auto flex flex-wrap space-x-2 sm:space-x-4">
+            <a href="{{ url_for('index') }}" class="hover:bg-gray-700 px-2 py-1 sm:px-3 sm:py-2 rounded text-sm sm:text-base">Dashboard</a>
+            <a href="{{ url_for('view_inventory') }}" class="hover:bg-gray-700 px-2 py-1 sm:px-3 sm:py-2 rounded text-sm sm:text-base">View Inventory</a>
+            <a href="{{ url_for('add_inventory') }}" class="hover:bg-gray-700 px-2 py-1 sm:px-3 sm:py-2 rounded text-sm sm:text-base">Add Inventory</a>
+            <a href="{{ url_for('add_drs_links') }}" class="hover:bg-gray-700 px-2 py-1 sm:px-3 sm:py-2 rounded text-sm sm:text-base">Add DRS Links</a>
+            <a href="{{ url_for('view_drs_links') }}" class="hover:bg-gray-700 px-2 py-1 sm:px-3 sm:py-2 rounded text-sm sm:text-base">View DRS Links</a>
+            <a href="{{ url_for('logout') }}" class="hover:bg-gray-700 px-2 py-1 sm:px-3 sm:py-2 rounded text-sm sm:text-base">Logout</a>
         </div>
     </nav>
     {% endif %}
@@ -37,7 +37,7 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="bg-{{ 'green' if category == 'success' else 'red' }}-100 border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded mb-4">
+                    <div class="bg-{{ 'green' if category == 'success' else 'red' }}-100 border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded mb-4 text-sm sm:text-base">
                         {{ message }}
                     </div>
                 {% endfor %}

@@ -40,7 +40,7 @@ logger.setLevel(logging.DEBUG)
 # Valid categories and item types
 VALID_CATEGORIES = ['IDU', 'ODU', 'Power', 'General', 'Other']
 VALID_ITEM_TYPES = ['IDU', 'ODU', 'Power', 'General', 'Other']
-VALID_DOMAINS = ['Chakwal', 'Taxila', 'Rawalpindi', 'Murree', 'Gujar Khan', 'Jhelum', 'Attock', 'Wah']
+VALID_DOMAINS = ['Chakwal', 'Jhelum']
 
 # Helper functions
 def login_required(f):
@@ -69,6 +69,14 @@ def sanitize_text(value):
     return escape(value.strip()) if value else None
 
 # Database Models
+class User(db.Model):
+    __tablename__ = 'inv_users'
+    uid = db.Column(db.String(36), primary_key=True)
+    username = db.Column(db.String(50), nullable=False, unique=True)
+    password = db.Column(db.String(255), nullable=False)
+    domain = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 class Inventory(db.Model):
     __tablename__ = 'inventory'
     id = db.Column(db.Integer, primary_key=True)
@@ -132,19 +140,18 @@ def login():
             return render_template('login.html')
 
         try:
-            user = db.session.query(Inventory).from_statement(
-                db.text("SELECT * FROM inv_users WHERE username = :username")
-            ).params(username=username).first()
+            user = User.query.filter_by(username=username).first()
             if not user:
                 flash('Invalid username')
                 return render_template('login.html')
 
- U            if not check_password_hash(user.password, password):
+            if not check_password_hash(user.password, password):
                 flash('Invalid password')
                 return render_template('login.html')
 
             session['user_id'] = str(user.uid)
             session['username'] = user.username
+            session['domain'] = user.domain
             flash('Login successful!')
             return redirect(url_for('index'))
         except Exception as e:
@@ -166,43 +173,54 @@ def logout():
 def index():
     try:
         username = session.get('username', 'unknown_user')
-        logger.debug(f"Dashboard accessed by {username}")
+        user_domain = session.get('domain', 'All')
+        logger.debug(f"Dashboard accessed by {username} (Domain: {user_domain})")
 
-        # Inventory stats
-        total_items = Inventory.query.count()
+        # Inventory stats with domain filter
+        inventory_query = Inventory.query
+        if user_domain != 'All':
+            inventory_query = inventory_query.filter(Inventory.moved_to == user_domain)
+
+        total_items = inventory_query.count()
         items_by_category = dict(
-            Inventory.query.with_entities(Inventory.category, db.func.count(Inventory.id))
+            inventory_query.with_entities(Inventory.category, db.func.count(Inventory.id))
             .group_by(Inventory.category).all()
         )
         items_by_type = dict(
-            Inventory.query.with_entities(Inventory.item_type, db.func.count(Inventory.id))
+            inventory_query.with_entities(Inventory.item_type, db.func.count(Inventory.id))
             .group_by(Inventory.item_type).all()
         )
         items_by_vendor = dict(
-            Inventory.query.with_entities(Inventory.vendor, db.func.count(Inventory.id))
+            inventory_query.with_entities(Inventory.vendor, db.func.count(Inventory.id))
             .group_by(Inventory.vendor).all()
         )
 
-        # DRS Links stats
-        total_links = DRSLink.query.count()
+        # DRS Links stats with domain filter
+        drs_query = DRSLink.query
+        if user_domain != 'All':
+            drs_query = drs_query.filter(DRSLink.domain == user_domain)
+
+        total_links = drs_query.count()
         links_by_domain = dict(
-            DRSLink.query.with_entities(DRSLink.domain, db.func.count(DRSLink.id))
+            drs_query.with_entities(DRSLink.domain, db.func.count(DRSLink.id))
             .group_by(DRSLink.domain).all()
         )
         links_by_vendor = dict(
-            DRSLink.query.with_entities(DRSLink.link_vendor, db.func.count(DRSLink.id))
+            drs_query.with_entities(DRSLink.link_vendor, db.func.count(DRSLink.id))
             .group_by(DRSLink.link_vendor).all()
         )
 
-        # Recent inventory entries
-        recent_items = Inventory.query.order_by(Inventory.created_at.desc()).limit(5).all()
-        recent_links = DRSLink.query.order_by(DRSLink.created_at.desc()).limit(5).all()
+        # Recent entries with domain filter
+        recent_items = inventory_query.order_by(Inventory.created_at.desc()).limit(5).all()
+        recent_links = drs_query.order_by(DRSLink.created_at.desc()).limit(5).all()
 
         pkt_tz = pytz.timezone('Asia/Karachi')
         for item in recent_items:
-            item.created_at_formatted = item.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%-m/%-d/%Y, %-I:%M:%S %p')
+            item.created_at_formatted = item.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S')
+            item.updated_at_formatted = item.updated_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S')
         for link in recent_links:
-            link.created_at_formatted = link.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%-m/%-d/%Y, %-I:%M:%S %p')
+            link.created_at_formatted = link.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S')
+            link.updated_at_formatted = link.updated_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S')
 
         return render_template(
             'index.html',
@@ -214,7 +232,8 @@ def index():
             links_by_domain=links_by_domain,
             links_by_vendor=links_by_vendor,
             recent_items=recent_items,
-            recent_links=recent_links
+            recent_links=recent_links,
+            user_domain=user_domain
         )
     except Exception as e:
         logger.error(f"Error in index route: {str(e)}")
@@ -226,6 +245,7 @@ def index():
 def add_inventory():
     try:
         username = session.get('username', 'unknown_user')
+        user_domain = session.get('domain', 'All')
         if request.method == 'POST':
             item_name = sanitize_text(request.form.get('item_name'))
             serial_number = sanitize_text(request.form.get('serial_number'))
@@ -254,6 +274,10 @@ def add_inventory():
 
             if category not in VALID_CATEGORIES:
                 flash('Invalid category')
+                return render_template('add_inventory.html', valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, valid_domains=VALID_DOMAINS)
+
+            if moved_to and moved_to not in VALID_DOMAINS:
+                flash('Invalid moved to domain')
                 return render_template('add_inventory.html', valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, valid_domains=VALID_DOMAINS)
 
             final_item_type = other_item_type if item_type == 'Other' else item_type
@@ -291,8 +315,11 @@ def view_inventory():
     try:
         page = request.args.get('page', 1, type=int)
         search = request.args.get('search', '').strip()
+        user_domain = session.get('domain', 'All')
 
         query = Inventory.query
+        if user_domain != 'All':
+            query = query.filter(Inventory.moved_to == user_domain)
         if search:
             query = query.filter(Inventory.serial_number.ilike(f'%{search}%'))
 
@@ -301,8 +328,8 @@ def view_inventory():
 
         pkt_tz = pytz.timezone('Asia/Karachi')
         for item in pagination.items:
-            item.created_at_formatted = item.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%-m/%-d/%Y, %-I:%M:%S %p')
-            item.updated_at_formatted = item.updated_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%-m/%-d/%Y, %-I:%M:%S %p')
+            item.created_at_formatted = item.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S')
+            item.updated_at_formatted = item.updated_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S')
 
         return render_template(
             'view_inventory.html',
@@ -399,8 +426,11 @@ def view_drs_links():
     try:
         page = request.args.get('page', 1, type=int)
         search = request.args.get('search', '').strip()
+        user_domain = session.get('domain', 'All')
 
         query = DRSLink.query
+        if user_domain != 'All':
+            query = query.filter(DRSLink.domain == user_domain)
         if search:
             query = query.filter(DRSLink.link_name.ilike(f'%{search}%'))
 
@@ -409,8 +439,8 @@ def view_drs_links():
 
         pkt_tz = pytz.timezone('Asia/Karachi')
         for link in pagination.items:
-            link.created_at_formatted = link.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%-m/%-d/%Y, %-I:%M:%S %p')
-            link.updated_at_formatted = link.updated_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%-m/%-d/%Y, %-I:%M:%S %p')
+            link.created_at_formatted = link.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S')
+            link.updated_at_formatted = link.updated_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S')
 
         return render_template(
             'view_drs_links.html',
@@ -427,7 +457,11 @@ def view_drs_links():
 def export_inventory():
     try:
         search = request.args.get('search', '').strip()
+        user_domain = session.get('domain', 'All')
+
         query = Inventory.query
+        if user_domain != 'All':
+            query = query.filter(Inventory.moved_to == user_domain)
         if search:
             query = query.filter(Inventory.serial_number.ilike(f'%{search}%'))
 
@@ -449,9 +483,9 @@ def export_inventory():
                 'Category': item.category or '-',
                 'Moved From': item.moved_from or '-',
                 'Created By': item.created_by,
-                'Created At': item.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%-m/%-d/%Y, %-I:%M:%S %p'),
+                'Created At': item.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S'),
                 'Updated By': item.updated_by,
-                'Updated At': item.updated_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%-m/%-d/%Y, %-I:%M:%S %p')
+                'Updated At': item.updated_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S')
             })
 
         df = pd.DataFrame(records)
@@ -470,6 +504,72 @@ def export_inventory():
         logger.error(f"Error in export_inventory: {str(e)}")
         flash(f"Error exporting data: {str(e)}")
         return redirect(url_for('view_inventory'))
+
+@app.route('/export_drs_links', methods=['GET'])
+@login_required
+def export_drs_links():
+    try:
+        search = request.args.get('search', '').strip()
+        user_domain = session.get('domain', 'All')
+
+        query = DRSLink.query
+        if user_domain != 'All':
+            query = query.filter(DRSLink.domain == user_domain)
+        if search:
+            query = query.filter(DRSLink.link_name.ilike(f'%{search}%'))
+
+        data = query.order_by(DRSLink.created_at.desc()).all()
+        pkt_tz = pytz.timezone('Asia/Karachi')
+        records = []
+        for link in data:
+            records.append({
+                'ID': link.id,
+                'Link Name': link.link_name,
+                'Site Name': link.site_name or '-',
+                'Domain': link.domain or '-',
+                'Site ID': link.site_id or '-',
+                'Site License': link.site_lic or '-',
+                'Site Type': link.site_type or '-',
+                'Link Vendor': link.link_vendor or '-',
+                'TX Frequency': link.tx_freq or '-',
+                'RX Frequency': link.rx_freq or '-',
+                'TX Power': link.tx_power or '-',
+                'MRMC Profile': link.mrmc_profile or '-',
+                'VLAN Numbers': link.vlan_numbers or '-',
+                'Ports': link.ports or '-',
+                'E1 Ports': link.e1_ports or '-',
+                'Link IPs': link.link_ips or '-',
+                'Link Capacity': link.link_capacity or '-',
+                'Link License': link.link_license or '-',
+                'Link License Key': link.link_license_key or '-',
+                'IDU Serial Number': link.idu_sn or '-',
+                'ODU Serial Number': link.odu_sn or '-',
+                'Dish Size': link.dish_size or '-',
+                'Tower Height': link.tower_height or '-',
+                'Dish Height': link.dish_height or '-',
+                'Remarks': link.remarks or '-',
+                'Created By': link.created_by,
+                'Created At': link.created_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S'),
+                'Updated By': link.updated_by,
+                'Updated At': link.updated_at.replace(tzinfo=pytz.UTC).astimezone(pkt_tz).strftime('%Y-%m-%d %H:%M:%S')
+            })
+
+        df = pd.DataFrame(records)
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='DRS Links Data')
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name='drs_links_data.xlsx'
+        )
+    except Exception as e:
+        logger.error(f"Error in export_drs_links: {str(e)}")
+        flash(f"Error exporting data: {str(e)}")
+        return redirect(url_for('view_drs_links'))
 
 if __name__ == '__main__':
     app.run(debug=True)

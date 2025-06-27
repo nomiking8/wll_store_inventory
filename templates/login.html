@@ -2,18 +2,18 @@
 {% block title %}Login{% endblock %}
 {% block content %}
 <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-4 text-center">Login to WLL Store Inventory</h2>
+    <h2 class="text-xl sm:text-2xl font-bold mb-4 text-center">Login to WLL Store Inventory</h2>
     <form method="POST" action="{{ url_for('login') }}">
         {{ form.hidden_tag() }}
         <div class="mb-4">
-            <label for="username" class="block text-gray-700">Username</label>
-            <input id="username" name="username" type="text" class="w-full p-2 border rounded" required>
+            <label for="username" class="block text-gray-700 text-sm sm:text-base">Username</label>
+            <input id="username" name="username" type="text" class="w-full p-2 border rounded text-sm sm:text-base" required>
         </div>
         <div class="mb-4">
-            <label for="password" class="block text-gray-700">Password</label>
-            <input id="password" name="password" type="password" class="w-full p-2 border rounded" required>
+            <label for="password" class="block text-gray-700 text-sm sm:text-base">Password</label>
+            <input id="password" name="password" type="password" class="w-full p-2 border rounded text-sm sm:text-base" required>
         </div>
-        <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Login</button>
+        <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 text-sm sm:text-base">Login</button>
     </form>
 </div>
 {% endblock %}
