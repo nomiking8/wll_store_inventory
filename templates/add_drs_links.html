@@ -1,117 +1,137 @@
 {% extends "base.html" %}
 {% block title %}Add DRS Links{% endblock %}
 {% block content %}
-<div class="mt-8">
-    <h1 class="text-3xl font-bold mb-8 text-gray-800">Add DRS Link</h1>
+<div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Add DRS Link</h2>
     <form method="POST" action="{{ url_for('add_drs_links') }}">
-        {{ form.hidden_tag() if form else '' }}
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">Link Information</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="link_name" class="block text-gray-700 text-sm font-medium mb-2">Link Name</label>
-                    <input id="link_name" name="link_name" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent" required>
-                </div>
-                <div>
-                    <label for="site_name" class="block text-gray-700 text-sm font-medium mb-2">Site Name</label>
-                    <input id="site_name" name="site_name" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="domain" class="block text-gray-700 text-sm font-medium mb-2">Domain</label>
-                    <select id="domain" name="domain" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                        <option value="">Select Domain</option>
-                        {% for dom in valid_domains %}
-                            <option value="{{ dom }}">{{ dom }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label for="site_id" class="block text-gray-700 text-sm font-medium mb-2">Site ID</label>
-                    <input id="site_id" name="site_id" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="site_lic" class="block text-gray-700 text-sm font-medium mb-2">Site License</label>
-                    <input id="site_lic" name="site_lic" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="site_type" class="block text-gray-700 text-sm font-medium mb-2">Site Type</label>
-                    <input id="site_type" name="site_type" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="link_vendor" class="block text-gray-700 text-sm font-medium mb-2">Link Vendor</label>
-                    <input id="link_vendor" name="link_vendor" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="tx_freq" class="block text-gray-700 text-sm font-medium mb-2">TX Frequency</label>
-                    <input id="tx_freq" name="tx_freq" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="rx_freq" class="block text-gray-700 text-sm font-medium mb-2">RX Frequency</label>
-                    <input id="rx_freq" name="rx_freq" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="tx_power" class="block text-gray-700 text-sm font-medium mb-2">TX Power</label>
-                    <input id="tx_power" name="tx_power" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="mrmc_profile" class="block text-gray-700 text-sm font-medium mb-2">MRMC Profile</label>
-                    <input id="mrmc_profile" name="mrmc_profile" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="vlan_numbers" class="block text-gray-700 text-sm font-medium mb-2">VLAN Numbers</label>
-                    <input id="vlan_numbers" name="vlan_numbers" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="ports" class="block text-gray-700 text-sm font-medium mb-2">Ports</label>
-                    <input id="ports" name="ports" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="e1_ports" class="block text-gray-700 text-sm font-medium mb-2">E1 Ports</label>
-                    <input id="e1_ports" name="e1_ports" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="link_ips" class="block text-gray-700 text-sm font-medium mb-2">Link IPs</label>
-                    <input id="link_ips" name="link_ips" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="link_capacity" class="block text-gray-700 text-sm font-medium mb-2">Link Capacity</label>
-                    <input id="link_capacity" name="link_capacity" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="link_license" class="block text-gray-700 text-sm font-medium mb-2">Link License</label>
-                    <input id="link_license" name="link_license" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="link_license_key" class="block text-gray-700 text-sm font-medium mb-2">Link License Key</label>
-                    <input id="link_license_key" name="link_license_key" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="idu_sn" class="block text-gray-700 text-sm font-medium mb-2">IDU Serial Number</label>
-                    <input id="idu_sn" name="idu_sn" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="odu_sn" class="block text-gray-700 text-sm font-medium mb-2">ODU Serial Number</label>
-                    <input id="odu_sn" name="odu_sn" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="dish_size" class="block text-gray-700 text-sm font-medium mb-2">Dish Size</label>
-                    <input id="dish_size" name="dish_size" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="tower_height" class="block text-gray-700 text-sm font-medium mb-2">Tower Height</label>
-                    <input id="tower_height" name="tower_height" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="dish_height" class="block text-gray-700 text-sm font-medium mb-2">Dish Height</label>
-                    <input id="dish_height" name="dish_height" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div class="col-span-1 sm:col-span-2">
-                    <label for="remarks" class="block text-gray-700 text-sm font-medium mb-2">Remarks</label>
-                    <textarea id="remarks" name="remarks" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent"></textarea>
-                </div>
+        {{ form.hidden_tag() }}
+        <div class="space-y-4">
+            <!-- Domain -->
+            <div>
+                <label for="domain" class="block text-gray-700 text-sm font-medium mb-2">Domain</label>
+                {% if user_domain == 'All' %}
+                    {{ form.domain(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+                {% else %}
+                    <input type="text" name="domain" value="{{ user_domain }}" readonly class="w-full p-3 border rounded-lg bg-gray-100 text-gray-700">
+                {% endif %}
+            </div>
+            <!-- Link Name -->
+            <div>
+                <label for="link_name" class="block text-gray-700 text-sm font-medium mb-2">Link Name</label>
+                {{ form.link_name(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent", required=True) }}
+            </div>
+            <!-- Site Name -->
+            <div>
+                <label for="site_name" class="block text-gray-700 text-sm font-medium mb-2">Site Name</label>
+                {{ form.site_name(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Site ID -->
+            <div>
+                <label for="site_id" class="block text-gray-700 text-sm font-medium mb-2">Site ID</label>
+                {{ form.site_id(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Site Type -->
+            <div>
+                <label for="site_type" class="block text-gray-700 text-sm font-medium mb-2">Site Type</label>
+                {{ form.site_type(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Site License -->
+            <div>
+                <label for="site_lic" class="block text-gray-700 text-sm font-medium mb-2">Site License</label>
+                {{ form.site_lic(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Link Vendor -->
+            <div>
+                <label for="link_vendor" class="block text-gray-700 text-sm font-medium mb-2">Link Vendor</label>
+                {{ form.link_vendor(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- TX Frequency -->
+            <div>
+                <label for="tx_freq" class="block text-gray-700 text-sm font-medium mb-2">TX Frequency</label>
+                {{ form.tx_freq(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- RX Frequency -->
+            <div>
+                <label for="rx_freq" class="block text-gray-700 text-sm font-medium mb-2">RX Frequency</label>
+                {{ form.rx_freq(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- TX Power -->
+            <div>
+                <label for="tx_power" class="block text-gray-700 text-sm font-medium mb-2">TX Power</label>
+                {{ form.tx_power(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- MRMC Profile -->
+            <div>
+                <label for="mrmc_profile" class="block text-gray-700 text-sm font-medium mb-2">MRMC Profile</label>
+                {{ form.mrmc_profile(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- VLAN Numbers -->
+            <div>
+                <label for="vlan_numbers" class="block text-gray-700 text-sm font-medium mb-2">VLAN Numbers</label>
+                {{ form.vlan_numbers(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Ports -->
+            <div>
+                <label for="ports" class="block text-gray-700 text-sm font-medium mb-2">Ports</label>
+                {{ form.ports(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- E1 Ports -->
+            <div>
+                <label for="e1_ports" class="block text-gray-700 text-sm font-medium mb-2">E1 Ports</label>
+                {{ form.e1_ports(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Link IPs -->
+            <div>
+                <label for="link_ips" class="block text-gray-700 text-sm font-medium mb-2">Link IPs</label>
+                {{ form.link_ips(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Link Capacity -->
+            <div>
+                <label for="link_capacity" class="block text-gray-700 text-sm font-medium mb-2">Link Capacity</label>
+                {{ form.link_capacity(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Link License -->
+            <div>
+                <label for="link_license" class="block text-gray-700 text-sm font-medium mb-2">Link License</label>
+                {{ form.link_license(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Link License Key -->
+            <div>
+                <label for="link_license_key" class="block text-gray-700 text-sm font-medium mb-2">Link License Key</label>
+                {{ form.link_license_key(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- IDU Serial Number -->
+            <div>
+                <label for="idu_sn" class="block text-gray-700 text-sm font-medium mb-2">IDU Serial Number</label>
+                {{ form.idu_sn(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- ODU Serial Number -->
+            <div>
+                <label for="odu_sn" class="block text-gray-700 text-sm font-medium mb-2">ODU Serial Number</label>
+                {{ form.odu_sn(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Dish Size -->
+            <div>
+                <label for="dish_size" class="block text-gray-700 text-sm font-medium mb-2">Dish Size</label>
+                {{ form.dish_size(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Tower Height -->
+            <div>
+                <label for="tower_height" class="block text-gray-700 text-sm font-medium mb-2">Tower Height</label>
+                {{ form.tower_height(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Dish Height -->
+            <div>
+                <label for="dish_height" class="block text-gray-700 text-sm font-medium mb-2">Dish Height</label>
+                {{ form.dish_height(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Remarks -->
+            <div>
+                <label for="remarks" class="block text-gray-700 text-sm font-medium mb-2">Remarks</label>
+                {{ form.remarks(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
             </div>
         </div>
-        <button type="submit" class="bg-gradient-to-r from-pink-500 to-amber-500 text-white p-3 rounded-lg hover:from-pink-600 hover:to-amber-600 transition">Submit</button>
+        <button type="submit" class="mt-6 w-full bg-gradient-to-r from-pink-500 to-amber-500 text-white p-3 rounded-lg hover:from-pink-600 hover:to-amber-600 transition">Submit</button>
     </form>
 </div>
 {% endblock %}

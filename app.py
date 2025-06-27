@@ -6,8 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import StringField, PasswordField, SubmitField, SelectField, IntegerField, TextAreaField
+from wtforms.validators import DataRequired, Optional
 from html import escape
 import logging
 import re
@@ -45,11 +45,54 @@ VALID_CATEGORIES = ['IDU', 'ODU', 'Power', 'General', 'Other']
 VALID_ITEM_TYPES = ['IDU', 'ODU', 'Power', 'General', 'Other']
 VALID_DOMAINS = ['Chakwal', 'Jhelum']
 
-# Login Form
+# Forms
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+class AddInventoryForm(FlaskForm):
+    domain = SelectField('Domain', choices=[('', 'Select Domain')] + [(dom, dom) for dom in VALID_DOMAINS], validators=[Optional()])
+    category = SelectField('Category', choices=[('', 'Select Category')] + [(cat, cat) for cat in VALID_CATEGORIES], validators=[DataRequired()])
+    item_type = SelectField('Item Type', choices=[('', 'Select Item Type')] + [(type, type) for type in VALID_ITEM_TYPES], validators=[DataRequired()])
+    item_name = StringField('Item Name', validators=[DataRequired()])
+    serial_number = StringField('Serial Number', validators=[DataRequired()])
+    license_power_capacity = StringField('License/Power Capacity', validators=[Optional()])
+    band = StringField('Band', validators=[Optional()])
+    frequency_range = StringField('Frequency Range', validators=[Optional()])
+    item_in_stock = IntegerField('Item in Stock', validators=[Optional()], default=1)
+    moved_from = StringField('Moved From', validators=[Optional()])
+    moved_to = StringField('Moved To', validators=[Optional()])
+    vendor = StringField('Vendor', validators=[Optional()])
+    other_item_type = StringField('Specify Other Item Type', validators=[Optional()])
+    submit = SubmitField('Submit')
+
+class AddDRSLinkForm(FlaskForm):
+    domain = SelectField('Domain', choices=[('', 'Select Domain')] + [(dom, dom) for dom in VALID_DOMAINS], validators=[Optional()])
+    link_name = StringField('Link Name', validators=[DataRequired()])
+    site_name = StringField('Site Name', validators=[Optional()])
+    site_id = StringField('Site ID', validators=[Optional()])
+    site_lic = StringField('Site License', validators=[Optional()])
+    site_type = StringField('Site Type', validators=[Optional()])
+    link_vendor = StringField('Link Vendor', validators=[Optional()])
+    tx_freq = StringField('TX Frequency', validators=[Optional()])
+    rx_freq = StringField('RX Frequency', validators=[Optional()])
+    tx_power = StringField('TX Power', validators=[Optional()])
+    mrmc_profile = StringField('MRMC Profile', validators=[Optional()])
+    vlan_numbers = TextAreaField('VLAN Numbers', validators=[Optional()])
+    ports = TextAreaField('Ports', validators=[Optional()])
+    e1_ports = TextAreaField('E1 Ports', validators=[Optional()])
+    link_ips = TextAreaField('Link IPs', validators=[Optional()])
+    link_capacity = StringField('Link Capacity', validators=[Optional()])
+    link_license = StringField('Link License', validators=[Optional()])
+    link_license_key = StringField('Link License Key', validators=[Optional()])
+    idu_sn = StringField('IDU Serial Number', validators=[Optional()])
+    odu_sn = StringField('ODU Serial Number', validators=[Optional()])
+    dish_size = StringField('Dish Size', validators=[Optional()])
+    tower_height = StringField('Tower Height', validators=[Optional()])
+    dish_height = StringField('Dish Height', validators=[Optional()])
+    remarks = TextAreaField('Remarks', validators=[Optional()])
+    submit = SubmitField('Submit')
 
 # Helper functions
 def login_required(f):
@@ -252,39 +295,44 @@ def add_inventory():
     try:
         username = session.get('username', 'unknown_user')
         user_domain = session.get('domain', 'All')
-        if request.method == 'POST':
-            item_name = sanitize_text(request.form.get('item_name'))
-            serial_number = sanitize_text(request.form.get('serial_number'))
-            license_power_capacity = sanitize_text(request.form.get('license_power_capacity'))
-            item_type = request.form.get('item_type')
-            other_item_type = sanitize_text(request.form.get('other_item_type'))
-            band = sanitize_text(request.form.get('band'))
-            frequency_range = sanitize_text(request.form.get('frequency_range'))
-            item_in_stock = safe_int(request.form.get('item_in_stock', '1'), 'item_in_stock')
-            moved_to = sanitize_text(request.form.get('moved_to'))
-            vendor = sanitize_text(request.form.get('vendor'))
-            category = request.form.get('category')
-            moved_from = sanitize_text(request.form.get('moved_from'))
+        form = AddInventoryForm()
+        
+        # Set domain choices based on user_domain
+        if user_domain != 'All':
+            form.domain.choices = [(user_domain, user_domain)]
+        else:
+            form.domain.choices = [('', 'Select Domain')] + [(dom, dom) for dom in VALID_DOMAINS]
+
+        if request.method == 'POST' and form.validate_on_submit():
+            item_name = sanitize_text(form.item_name.data)
+            serial_number = sanitize_text(form.serial_number.data)
+            license_power_capacity = sanitize_text(form.license_power_capacity.data)
+            item_type = form.item_type.data
+            other_item_type = sanitize_text(form.other_item_type.data)
+            band = sanitize_text(form.band.data)
+            frequency_range = sanitize_text(form.frequency_range.data)
+            item_in_stock = form.item_in_stock.data or 1
+            moved_to = sanitize_text(form.moved_to.data)
+            vendor = sanitize_text(form.vendor.data)
+            category = form.category.data
+            moved_from = sanitize_text(form.moved_from.data)
+            domain = form.domain.data if user_domain == 'All' else user_domain
 
             if not all([item_name, serial_number, item_type, category]):
                 flash('Item name, serial number, item type, and category are required')
-                return render_template('add_inventory.html', valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, valid_domains=VALID_DOMAINS)
+                return render_template('add_inventory.html', form=form, valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, user_domain=user_domain)
 
             if item_type == 'Other' and not other_item_type:
                 flash('Please specify the item type for "Other"')
-                return render_template('add_inventory.html', valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, valid_domains=VALID_DOMAINS)
+                return render_template('add_inventory.html', form=form, valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, user_domain=user_domain)
 
             if item_type not in VALID_ITEM_TYPES:
                 flash('Invalid item type')
-                return render_template('add_inventory.html', valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, valid_domains=VALID_DOMAINS)
+                return render_template('add_inventory.html', form=form, valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, user_domain=user_domain)
 
             if category not in VALID_CATEGORIES:
                 flash('Invalid category')
-                return render_template('add_inventory.html', valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, valid_domains=VALID_DOMAINS)
-
-            if moved_to and moved_to not in VALID_DOMAINS:
-                flash('Invalid moved to domain')
-                return render_template('add_inventory.html', valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, valid_domains=VALID_DOMAINS)
+                return render_template('add_inventory.html', form=form, valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, user_domain=user_domain)
 
             final_item_type = other_item_type if item_type == 'Other' else item_type
 
@@ -308,12 +356,12 @@ def add_inventory():
             db.session.commit()
             flash('Inventory item added successfully!', 'success')
             return redirect(url_for('view_inventory'))
-        return render_template('add_inventory.html', valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, valid_domains=VALID_DOMAINS)
+        return render_template('add_inventory.html', form=form, valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, user_domain=user_domain)
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error in add_inventory: {str(e)}")
         flash(f"Error adding inventory: {str(e)}")
-        return render_template('add_inventory.html', valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, valid_domains=VALID_DOMAINS)
+        return render_template('add_inventory.html', form=form, valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, user_domain=user_domain)
 
 @app.route('/view_inventory', methods=['GET'])
 @login_required
@@ -352,39 +400,44 @@ def view_inventory():
 def add_drs_links():
     try:
         username = session.get('username', 'unknown_user')
-        if request.method == 'POST':
-            link_name = sanitize_text(request.form.get('link_name'))
-            site_name = sanitize_text(request.form.get('site_name'))
-            domain = request.form.get('domain')
-            site_id = sanitize_text(request.form.get('site_id'))
-            site_lic = sanitize_text(request.form.get('site_lic'))
-            site_type = sanitize_text(request.form.get('site_type'))
-            link_vendor = sanitize_text(request.form.get('link_vendor'))
-            tx_freq = sanitize_text(request.form.get('tx_freq'))
-            rx_freq = sanitize_text(request.form.get('rx_freq'))
-            tx_power = sanitize_text(request.form.get('tx_power'))
-            mrmc_profile = sanitize_text(request.form.get('mrmc_profile'))
-            vlan_numbers = sanitize_text(request.form.get('vlan_numbers'))
-            ports = sanitize_text(request.form.get('ports'))
-            e1_ports = sanitize_text(request.form.get('e1_ports'))
-            link_ips = sanitize_text(request.form.get('link_ips'))
-            link_capacity = sanitize_text(request.form.get('link_capacity'))
-            link_license = sanitize_text(request.form.get('link_license'))
-            link_license_key = sanitize_text(request.form.get('link_license_key'))
-            idu_sn = sanitize_text(request.form.get('idu_sn'))
-            odu_sn = sanitize_text(request.form.get('odu_sn'))
-            dish_size = sanitize_text(request.form.get('dish_size'))
-            tower_height = sanitize_text(request.form.get('tower_height'))
-            dish_height = sanitize_text(request.form.get('dish_height'))
-            remarks = sanitize_text(request.form.get('remarks'))
+        user_domain = session.get('domain', 'All')
+        form = AddDRSLinkForm()
+        
+        # Set domain choices based on user_domain
+        if user_domain != 'All':
+            form.domain.choices = [(user_domain, user_domain)]
+        else:
+            form.domain.choices = [('', 'Select Domain')] + [(dom, dom) for dom in VALID_DOMAINS]
+
+        if request.method == 'POST' and form.validate_on_submit():
+            link_name = sanitize_text(form.link_name.data)
+            site_name = sanitize_text(form.site_name.data)
+            domain = form.domain.data if user_domain == 'All' else user_domain
+            site_id = sanitize_text(form.site_id.data)
+            site_lic = sanitize_text(form.site_lic.data)
+            site_type = sanitize_text(form.site_type.data)
+            link_vendor = sanitize_text(form.link_vendor.data)
+            tx_freq = sanitize_text(form.tx_freq.data)
+            rx_freq = sanitize_text(form.rx_freq.data)
+            tx_power = sanitize_text(form.tx_power.data)
+            mrmc_profile = sanitize_text(form.mrmc_profile.data)
+            vlan_numbers = sanitize_text(form.vlan_numbers.data)
+            ports = sanitize_text(form.ports.data)
+            e1_ports = sanitize_text(form.e1_ports.data)
+            link_ips = sanitize_text(form.link_ips.data)
+            link_capacity = sanitize_text(form.link_capacity.data)
+            link_license = sanitize_text(form.link_license.data)
+            link_license_key = sanitize_text(form.link_license_key.data)
+            idu_sn = sanitize_text(form.idu_sn.data)
+            odu_sn = sanitize_text(form.odu_sn.data)
+            dish_size = sanitize_text(form.dish_size.data)
+            tower_height = sanitize_text(form.tower_height.data)
+            dish_height = sanitize_text(form.dish_height.data)
+            remarks = sanitize_text(form.remarks.data)
 
             if not link_name:
                 flash('Link name is required')
-                return render_template('add_drs_links.html', valid_domains=VALID_DOMAINS)
-
-            if domain and domain not in VALID_DOMAINS:
-                flash('Invalid domain')
-                return render_template('add_drs_links.html', valid_domains=VALID_DOMAINS)
+                return render_template('add_drs_links.html', form=form, user_domain=user_domain)
 
             drs_link = DRSLink(
                 link_name=link_name,
@@ -419,12 +472,12 @@ def add_drs_links():
             db.session.commit()
             flash('DRS Link added successfully!', 'success')
             return redirect(url_for('view_drs_links'))
-        return render_template('add_drs_links.html', valid_domains=VALID_DOMAINS)
+        return render_template('add_drs_links.html', form=form, user_domain=user_domain)
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error in add_drs_links: {str(e)}")
         flash(f"Error adding DRS link: {str(e)}")
-        return render_template('add_drs_links.html', valid_domains=VALID_DOMAINS)
+        return render_template('add_drs_links.html', form=form, user_domain=user_domain)
 
 @app.route('/view_drs_links', methods=['GET'])
 @login_required

@@ -1,79 +1,81 @@
 {% extends "base.html" %}
 {% block title %}Add Inventory{% endblock %}
 {% block content %}
-<div class="mt-8">
-    <h1 class="text-3xl font-bold mb-8 text-gray-800">Add Inventory Item</h1>
-    <form method="POST" action="{{ url_for('add_inventory') }}" x-data="{ itemType: '' }">
-        {{ form.hidden_tag() if form else '' }}
-        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">Item Information</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="item_name" class="block text-gray-700 text-sm font-medium mb-2">Item Name</label>
-                    <input id="item_name" name="item_name" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent" required>
-                </div>
-                <div>
-                    <label for="serial_number" class="block text-gray-700 text-sm font-medium mb-2">Serial Number</label>
-                    <input id="serial_number" name="serial_number" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent" required>
-                </div>
-                <div>
-                    <label for="license_power_capacity" class="block text-gray-700 text-sm font-medium mb-2">License/Power Capacity</label>
-                    <input id="license_power_capacity" name="license_power_capacity" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="item_type" class="block text-gray-700 text-sm font-medium mb-2">Item Type</label>
-                    <select id="item_type" name="item_type" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent" x-model="itemType" required>
-                        <option value="">Select Item Type</option>
-                        {% for type in valid_item_types %}
-                            <option value="{{ type }}">{{ type }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div x-show="itemType === 'Other'">
+<div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Add Inventory Item</h2>
+    <form method="POST" action="{{ url_for('add_inventory') }}">
+        {{ form.hidden_tag() }}
+        <div class="space-y-4">
+            <!-- Domain -->
+            <div>
+                <label for="domain" class="block text-gray-700 text-sm font-medium mb-2">Domain</label>
+                {% if user_domain == 'All' %}
+                    {{ form.domain(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+                {% else %}
+                    <input type="text" name="domain" value="{{ user_domain }}" readonly class="w-full p-3 border rounded-lg bg-gray-100 text-gray-700">
+                {% endif %}
+            </div>
+            <!-- Category -->
+            <div>
+                <label for="category" class="block text-gray-700 text-sm font-medium mb-2">Category</label>
+                {{ form.category(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent", required=True) }}
+            </div>
+            <!-- Item Type -->
+            <div x-data="{ itemType: '{{ form.item_type.data or '' }}' }">
+                <label for="item_type" class="block text-gray-700 text-sm font-medium mb-2">Item Type</label>
+                {{ form.item_type(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent", x_model="itemType", required=True) }}
+                <div x-show="itemType === 'Other'" class="mt-2">
                     <label for="other_item_type" class="block text-gray-700 text-sm font-medium mb-2">Specify Other Item Type</label>
-                    <input id="other_item_type" name="other_item_type" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="band" class="block text-gray-700 text-sm font-medium mb-2">Band</label>
-                    <input id="band" name="band" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="frequency_range" class="block text-gray-700 text-sm font-medium mb-2">Frequency Range</label>
-                    <input id="frequency_range" name="frequency_range" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="item_in_stock" class="block text-gray-700 text-sm font-medium mb-2">Item in Stock</label>
-                    <input id="item_in_stock" name="item_in_stock" type="number" value="1" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent" required>
-                </div>
-                <div>
-                    <label for="moved_to" class="block text-gray-700 text-sm font-medium mb-2">Moved To</label>
-                    <select id="moved_to" name="moved_to" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                        <option value="">Select Domain</option>
-                        {% for dom in valid_domains %}
-                            <option value="{{ dom }}">{{ dom }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label for="vendor" class="block text-gray-700 text-sm font-medium mb-2">Vendor</label>
-                    <input id="vendor" name="vendor" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
-                </div>
-                <div>
-                    <label for="category" class="block text-gray-700 text-sm font-medium mb-2">Category</label>
-                    <select id="category" name="category" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent" required>
-                        <option value="">Select Category</option>
-                        {% for cat in valid_categories %}
-                            <option value="{{ cat }}">{{ cat }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label for="moved_from" class="block text-gray-700 text-sm font-medium mb-2">Moved From</label>
-                    <input id="moved_from" name="moved_from" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                    {{ form.other_item_type(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
                 </div>
             </div>
+            <!-- Item Name -->
+            <div>
+                <label for="item_name" class="block text-gray-700 text-sm font-medium mb-2">Item Name</label>
+                {{ form.item_name(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent", required=True) }}
+            </div>
+            <!-- Serial Number -->
+            <div>
+                <label for="serial_number" class="block text-gray-700 text-sm font-medium mb-2">Serial Number</label>
+                {{ form.serial_number(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent", required=True) }}
+            </div>
+            <!-- License/Power Capacity -->
+            <div>
+                <label for="license_power_capacity" class="block text-gray-700 text-sm font-medium mb-2">License/Power Capacity</label>
+                {{ form.license_power_capacity(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Band -->
+            <div>
+                <label for="band" class="block text-gray-700 text-sm font-medium mb-2">Band</label>
+                {{ form.band(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Frequency Range -->
+            <div>
+                <label for="frequency_range" class="block text-gray-700 text-sm font-medium mb-2">Frequency Range</label>
+                {{ form.frequency_range(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Item in Stock -->
+            <div>
+                <label for="item_in_stock" class="block text-gray-700 text-sm font-medium mb-2">Item in Stock</label>
+                {{ form.item_in_stock(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent", value="1") }}
+            </div>
+            <!-- Moved From -->
+            <div>
+                <label for="moved_from" class="block text-gray-700 text-sm font-medium mb-2">Moved From</label>
+                {{ form.moved_from(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Moved To -->
+            <div>
+                <label for="moved_to" class="block text-gray-700 text-sm font-medium mb-2">Moved To</label>
+                {{ form.moved_to(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
+            <!-- Vendor -->
+            <div>
+                <label for="vendor" class="block text-gray-700 text-sm font-medium mb-2">Vendor</label>
+                {{ form.vendor(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent") }}
+            </div>
         </div>
-        <button type="submit" class="bg-gradient-to-r from-pink-500 to-amber-500 text-white p-3 rounded-lg hover:from-pink-600 hover:to-amber-600 transition">Submit</button>
+        <button type="submit" class="mt-6 w-full bg-gradient-to-r from-pink-500 to-amber-500 text-white p-3 rounded-lg hover:from-pink-600 hover:to-amber-600 transition">Submit</button>
     </form>
 </div>
 {% endblock %}
