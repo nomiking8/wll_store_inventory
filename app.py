@@ -14,7 +14,6 @@ import re
 import pandas as pd
 from io import BytesIO
 import pytz
-from uuid import uuid4
 from werkzeug.security import check_password_hash
 import psycopg2
 
@@ -145,7 +144,6 @@ class Inventory(db.Model):
     item_in_stock = db.Column(db.Integer, nullable=False, default=1)
     moved_to = db.Column(db.String(100))
     vendor = db.Column(db.String(100))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     category = db.Column(db.String(50), nullable=False)
     moved_from = db.Column(db.String(100))
     created_by = db.Column(db.String(50), nullable=False)
@@ -154,7 +152,7 @@ class Inventory(db.Model):
 
 class DRSLink(db.Model):
     __tablename__ = 'drs_links'
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid4()))
+    id = db.Column(db.Integer, primary_key=True)
     link_name = db.Column(db.String(100), nullable=False)
     site_name = db.Column(db.String(100))
     domain = db.Column(db.String(100))
@@ -258,10 +256,6 @@ def index():
             drs_query.with_entities(DRSLink.domain, db.func.count(DRSLink.id))
             .group_by(DRSLink.domain).all()
         )
-        links_by_vendor = dict(
-            drs_query.with_entities(DRSLink.link_vendor, db.func.count(DRSLink.id))
-            .group_by(DRSLink.link_vendor).all()
-        )
 
         # Recent entries with domain filter
         recent_items = inventory_query.order_by(Inventory.created_at.desc()).limit(5).all()
@@ -283,7 +277,6 @@ def index():
             items_by_vendor=items_by_vendor,
             total_links=total_links,
             links_by_domain=links_by_domain,
-            links_by_vendor=links_by_vendor,
             recent_items=recent_items,
             recent_links=recent_links,
             user_domain=user_domain
@@ -366,6 +359,91 @@ def add_inventory():
         logger.error(f"Error in add_inventory: {str(e)}")
         flash(f"Error adding inventory: {str(e)}")
         return render_template('add_inventory.html', form=form, valid_categories=VALID_CATEGORIES, valid_item_types=VALID_ITEM_TYPES, user_domain=user_domain)
+
+@app.route('/edit_inventory/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_inventory(id):
+    try:
+        username = session.get('username', 'unknown_user')
+        user_domain = session.get('domain', 'All')
+        item = Inventory.query.get_or_404(id)
+        
+        # Restrict access based on domain
+        if user_domain != 'All' and item.moved_to != user_domain:
+            flash('You do not have permission to edit this item')
+            return redirect(url_for('view_inventory'))
+
+        form = AddInventoryForm(obj=item)
+        
+        # Set domain choices based on user_domain
+        if user_domain != 'All':
+            form.domain.choices = [(user_domain, user_domain)]
+        else:
+            form.domain.choices = [('', 'Select Domain')] + [(dom, dom) for dom in VALID_DOMAINS]
+
+        if request.method == 'POST' and form.validate_on_submit():
+            item.item_name = sanitize_text(form.item_name.data)
+            item.serial_number = sanitize_text(form.serial_number.data)
+            item.license_power_capacity = sanitize_text(form.license_power_capacity.data)
+            item_type = form.item_type.data
+            other_item_type = sanitize_text(form.other_item_type.data)
+            item.band = sanitize_text(form.band.data)
+            item.frequency_range = sanitize_text(form.frequency_range.data)
+            item.item_in_stock = form.item_in_stock.data or 1
+            item.moved_to = sanitize_text(form.moved_to.data)
+            item.vendor = sanitize_text(form.vendor.data)
+            item.category = form.category.data
+            item.moved_from = sanitize_text(form.moved_from.data)
+            item.updated_by = username
+            item.updated_at = datetime.utcnow()
+            item.domain = form.domain.data if user_domain == 'All' else user_domain
+
+            if item_type == 'Other' and not other_item_type:
+                flash('Please specify the item type for "Other"')
+                return render_template('edit_inventory.html', form=form, user_domain=user_domain)
+
+            if item_type not in VALID_ITEM_TYPES:
+                flash('Invalid item type')
+                return render_template('edit_inventory.html', form=form, user_domain=user_domain)
+
+            if item.category not in VALID_CATEGORIES:
+                flash('Invalid category')
+                return render_template('edit_inventory.html', form=form, user_domain=user_domain)
+
+            item.item_type = other_item_type if item_type == 'Other' else item_type
+
+            db.session.commit()
+            flash('Inventory item updated successfully!', 'success')
+            return redirect(url_for('view_inventory'))
+        
+        return render_template('edit_inventory.html', form=form, user_domain=user_domain)
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error in edit_inventory: {str(e)}")
+        flash(f"Error editing inventory: {str(e)}")
+        return render_template('edit_inventory.html', form=form, user_domain=user_domain)
+
+@app.route('/delete_inventory/<int:id>', methods=['POST'])
+@login_required
+def delete_inventory(id):
+    try:
+        user_domain = session.get('domain', 'All')
+        item = Inventory.query.get_or_404(id)
+        
+        # Restrict access based on domain
+        if user_domain != 'All' and item.moved_to != user_domain:
+            flash('You do not have permission to delete this item')
+            return redirect(url_for('view_inventory'))
+
+        db.session.delete(item)
+        db.session.commit()
+        flash('Inventory item deleted successfully!', 'success')
+        return redirect(url_for('view_inventory'))
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error in delete_inventory: {str(e)}")
+        flash(f"Error deleting inventory: {str(e)}")
+        return redirect(url_for('view_inventory'))
 
 @app.route('/view_inventory', methods=['GET'])
 @login_required
@@ -484,6 +562,92 @@ def add_drs_links():
         logger.error(f"Error in add_drs_links: {str(e)}")
         flash(f"Error adding DRS link: {str(e)}")
         return render_template('add_drs_links.html', form=form, user_domain=user_domain)
+
+@app.route('/edit_drs_links/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_drs_links(id):
+    try:
+        username = session.get('username', 'unknown_user')
+        user_domain = session.get('domain', 'All')
+        link = DRSLink.query.get_or_404(id)
+        
+        # Restrict access based on domain
+        if user_domain != 'All' and link.domain != user_domain:
+            flash('You do not have permission to edit this link')
+            return redirect(url_for('view_drs_links'))
+
+        form = AddDRSLinkForm(obj=link)
+        
+        # Set domain choices based on user_domain
+        if user_domain != 'All':
+            form.domain.choices = [(user_domain, user_domain)]
+        else:
+            form.domain.choices = [('', 'Select Domain')] + [(dom, dom) for dom in VALID_DOMAINS]
+
+        if request.method == 'POST' and form.validate_on_submit():
+            link.link_name = sanitize_text(form.link_name.data)
+            link.site_name = sanitize_text(form.site_name.data)
+            link.domain = form.domain.data if user_domain == 'All' else user_domain
+            link.site_id = sanitize_text(form.site_id.data)
+            link.site_lic = sanitize_text(form.site_lic.data)
+            link.site_type = sanitize_text(form.site_type.data)
+            link.link_vendor = sanitize_text(form.link_vendor.data)
+            link.tx_freq = sanitize_text(form.tx_freq.data)
+            link.rx_freq = sanitize_text(form.rx_freq.data)
+            link.tx_power = sanitize_text(form.tx_power.data)
+            link.mrmc_profile = sanitize_text(form.mrmc_profile.data)
+            link.vlan_numbers = sanitize_text(form.vlan_numbers.data)
+            link.ports = sanitize_text(form.ports.data)
+            link.e1_ports = sanitize_text(form.e1_ports.data)
+            link.link_ips = sanitize_text(form.link_ips.data)
+            link.link_capacity = sanitize_text(form.link_capacity.data)
+            link.link_license = sanitize_text(form.link_license.data)
+            link.link_license_key = sanitize_text(form.link_license_key.data)
+            link.idu_sn = sanitize_text(form.idu_sn.data)
+            link.odu_sn = sanitize_text(form.odu_sn.data)
+            link.dish_size = sanitize_text(form.dish_size.data)
+            link.tower_height = sanitize_text(form.tower_height.data)
+            link.dish_height = sanitize_text(form.dish_height.data)
+            link.remarks = sanitize_text(form.remarks.data)
+            link.updated_by = username
+            link.updated_at = datetime.utcnow()
+
+            if not link.link_name:
+                flash('Link name is required')
+                return render_template('edit_drs_links.html', form=form, user_domain=user_domain)
+
+            db.session.commit()
+            flash('DRS Link updated successfully!', 'success')
+            return redirect(url_for('view_drs_links'))
+        
+        return render_template('edit_drs_links.html', form=form, user_domain=user_domain)
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error in edit_drs_links: {str(e)}")
+        flash(f"Error editing DRS link: {str(e)}")
+        return render_template('edit_drs_links.html', form=form, user_domain=user_domain)
+
+@app.route('/delete_drs_links/<int:id>', methods=['POST'])
+@login_required
+def delete_drs_links(id):
+    try:
+        user_domain = session.get('domain', 'All')
+        link = DRSLink.query.get_or_404(id)
+        
+        # Restrict access based on domain
+        if user_domain != 'All' and link.domain != user_domain:
+            flash('You do not have permission to delete this link')
+            return redirect(url_for('view_drs_links'))
+
+        db.session.delete(link)
+        db.session.commit()
+        flash('DRS Link deleted successfully!', 'success')
+        return redirect(url_for('view_drs_links'))
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error in delete_drs_links: {str(e)}")
+        flash(f"Error deleting DRS link: {str(e)}")
+        return redirect(url_for('view_drs_links'))
 
 @app.route('/view_drs_links', methods=['GET'])
 @login_required

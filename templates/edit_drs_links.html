@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Edit DRS Link{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-8 text-white text-center bg-gradient-to-r from-indigo-600 to-purple-600 p-4 rounded-lg shadow-lg">Edit DRS Link</h1>
+    <form method="POST" class="bg-white shadow-xl rounded-lg p-8">
+        {{ form.hidden_tag() }}
+        <!-- General Information -->
+        <div class="mb-8 bg-teal-50 p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4 text-teal-800 text-center">DRS Link Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="domain" class="block text-gray-700 mb-2 font-medium">Domain</label>
+                    {% if user_domain == 'All' %}
+                        {{ form.domain(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                    {% else %}
+                        <input type="text" id="domain" name="domain" value="{{ user_domain }}" class="w-full p-3 border rounded-lg bg-gray-100" readonly>
+                    {% endif %}
+                </div>
+                <div>
+                    <label for="link_name" class="block text-gray-700 mb-2 font-medium">Link Name</label>
+                    {{ form.link_name(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white", required=True) }}
+                </div>
+                <div>
+                    <label for="site_name" class="block text-gray-700 mb-2 font-medium">Site Name</label>
+                    {{ form.site_name(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="site_id" class="block text-gray-700 mb-2 font-medium">Site ID</label>
+                    {{ form.site_id(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="site_type" class="block text-gray-700 mb-2 font-medium">Site Type</label>
+                    {{ form.site_type(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="site_lic" class="block text-gray-700 mb-2 font-medium">Site License</label>
+                    {{ form.site_lic(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="link_vendor" class="block text-gray-700 mb-2 font-medium">Link Vendor</label>
+                    {{ form.link_vendor(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="tx_freq" class="block text-gray-700 mb-2 font-medium">TX Frequency</label>
+                    {{ form.tx_freq(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="rx_freq" class="block text-gray-700 mb-2 font-medium">RX Frequency</label>
+                    {{ form.rx_freq(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="tx_power" class="block text-gray-700 mb-2 font-medium">TX Power</label>
+                    {{ form.tx_power(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="mrmc_profile" class="block text-gray-700 mb-2 font-medium">MRMC Profile</label>
+                    {{ form.mrmc_profile(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="vlan_numbers" class="block text-gray-700 mb-2 font-medium">VLAN Numbers</label>
+                    {{ form.vlan_numbers(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="ports" class="block text-gray-700 mb-2 font-medium">Ports</label>
+                    {{ form.ports(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="e1_ports" class="block text-gray-700 mb-2 font-medium">E1 Ports</label>
+                    {{ form.e1_ports(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="link_ips" class="block text-gray-700 mb-2 font-medium">Link IPs</label>
+                    {{ form.link_ips(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="link_capacity" class="block text-gray-700 mb-2 font-medium">Link Capacity</label>
+                    {{ form.link_capacity(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="link_license" class="block text-gray-700 mb-2 font-medium">Link License</label>
+                    {{ form.link_license(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="link_license_key" class="block text-gray-700 mb-2 font-medium">Link License Key</label>
+                    {{ form.link_license_key(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="idu_sn" class="block text-gray-700 mb-2 font-medium">IDU Serial Number</label>
+                    {{ form.idu_sn(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="odu_sn" class="block text-gray-700 mb-2 font-medium">ODU Serial Number</label>
+                    {{ form.odu_sn(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="dish_size" class="block text-gray-700 mb-2 font-medium">Dish Size</label>
+                    {{ form.dish_size(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="tower_height" class="block text-gray-700 mb-2 font-medium">Tower Height</label>
+                    {{ form.tower_height(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="dish_height" class="block text-gray-700 mb-2 font-medium">Dish Height</label>
+                    {{ form.dish_height(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+                <div>
+                    <label for="remarks" class="block text-gray-700 mb-2 font-medium">Remarks</label>
+                    {{ form.remarks(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 shadow-md transition duration-200">Update</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
