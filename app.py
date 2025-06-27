@@ -149,6 +149,7 @@ class Inventory(db.Model):
     created_by = db.Column(db.String(50), nullable=False)
     updated_by = db.Column(db.String(50), nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class DRSLink(db.Model):
     __tablename__ = 'drs_links'
@@ -227,6 +228,15 @@ def index():
         user_domain = session.get('domain', 'All')
         logger.debug(f"Dashboard accessed by {username} (Domain: {user_domain})")
 
+        # Check if Inventory table has created_at column
+        try:
+            db.inspect(db.engine).get_columns('inventory')
+            logger.debug("Inventory table schema checked successfully")
+        except Exception as schema_error:
+            logger.error(f"Schema error for Inventory table: {str(schema_error)}")
+            flash("Database schema error. Please contact the administrator.")
+            return redirect(url_for('index'))
+
         # Inventory stats with domain filter
         inventory_query = Inventory.query
         if user_domain != 'All':
@@ -283,7 +293,7 @@ def index():
         )
     except Exception as e:
         logger.error(f"Error in index route: {str(e)}")
-        flash(f"Error: {str(e)}")
+        flash(f"Error: {str(e)}. Please ensure database migrations are up to date.")
         return redirect(url_for('index'))
 
 @app.route('/add_inventory', methods=['GET', 'POST'])
@@ -347,7 +357,8 @@ def add_inventory():
                 moved_from=moved_from,
                 created_by=username,
                 updated_by=username,
-                updated_at=datetime.utcnow()
+                updated_at=datetime.utcnow(),
+                created_at=datetime.utcnow()
             )
             db.session.add(inventory)
             db.session.commit()
@@ -396,7 +407,6 @@ def edit_inventory(id):
             item.moved_from = sanitize_text(form.moved_from.data)
             item.updated_by = username
             item.updated_at = datetime.utcnow()
-            item.domain = form.domain.data if user_domain == 'All' else user_domain
 
             if item_type == 'Other' and not other_item_type:
                 flash('Please specify the item type for "Other"')
@@ -476,7 +486,7 @@ def view_inventory():
         )
     except Exception as e:
         logger.error(f"Error in view_inventory: {str(e)}")
-        flash(f"Error: {str(e)}")
+        flash(f"Error: {str(e)}. Please ensure database migrations are up to date.")
         return redirect(url_for('index'))
 
 @app.route('/add_drs_links', methods=['GET', 'POST'])
@@ -550,7 +560,8 @@ def add_drs_links():
                 remarks=remarks,
                 created_by=username,
                 updated_by=username,
-                updated_at=datetime.utcnow()
+                updated_at=datetime.utcnow(),
+                created_at=datetime.utcnow()
             )
             db.session.add(drs_link)
             db.session.commit()
@@ -680,7 +691,7 @@ def view_drs_links():
         )
     except Exception as e:
         logger.error(f"Error in view_drs_links: {str(e)}")
-        flash(f"Error: {str(e)}")
+        flash(f"Error: {str(e)}. Please ensure database migrations are up to date.")
         return redirect(url_for('index'))
 
 @app.route('/export_inventory', methods=['GET'])
@@ -733,7 +744,7 @@ def export_inventory():
         )
     except Exception as e:
         logger.error(f"Error in export_inventory: {str(e)}")
-        flash(f"Error exporting data: {str(e)}")
+        flash(f"Error exporting data: {str(e)}. Please ensure database migrations are up to date.")
         return redirect(url_for('view_inventory'))
 
 @app.route('/export_drs_links', methods=['GET'])
@@ -799,7 +810,7 @@ def export_drs_links():
         )
     except Exception as e:
         logger.error(f"Error in export_drs_links: {str(e)}")
-        flash(f"Error exporting data: {str(e)}")
+        flash(f"Error exporting data: {str(e)}. Please ensure database migrations are up to date.")
         return redirect(url_for('view_drs_links'))
 
 if __name__ == '__main__':
