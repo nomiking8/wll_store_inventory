@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">WLL Store Inventory Dashboard</h1>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-2">Total Inventory Items</h2>
+        <p class="text-3xl">{{ total_items }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-2">Items by Category</h2>
+        {% for category, count in items_by_category.items() %}
+            <p>{{ category }}: {{ count }}</p>
+        {% endfor %}
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-2">Items by Type</h2>
+        {% for type, count in items_by_type.items() %}
+            <p>{{ type }}: {{ count }}</p>
+        {% endfor %}
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-2">Items by Vendor</h2>
+        {% for vendor, count in items_by_vendor.items() %}
+            <p>{{ vendor or 'Unknown' }}: {{ count }}</p>
+        {% endfor %}
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-2">Total DRS Links</h2>
+        <p class="text-3xl">{{ total_links }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-2">Links by Domain</h2>
+        {% for domain, count in links_by_domain.items() %}
+            <p>{{ domain or 'Unknown' }}: {{ count }}</p>
+        {% endfor %}
+    </div>
+</div>
+<div class="mt-8">
+    <h2 class="text-2xl font-bold mb-4">Recent Inventory Items</h2>
+    <table class="w-full border-collapse bg-white shadow rounded">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="p-2">Item Name</th>
+                <th class="p-2">Serial Number</th>
+                <th class="p-2">Category</th>
+                <th class="p-2">Created By</th>
+                <th class="p-2">Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in recent_items %}
+            <tr>
+                <td class="p-2">{{ item.item_name }}</td>
+                <td class="p-2">{{ item.serial_number or '-' }}</td>
+                <td class="p-2">{{ item.category }}</td>
+                <td class="p-2">{{ item.created_by }}</td>
+                <td class="p-2">{{ item.created_at_formatted }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="p-2 text-center">No items found</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="mt-8">
+    <h2 class="text-2xl font-bold mb-4">Recent DRS Links</h2>
+    <table class="w-full border-collapse bg-white shadow rounded">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="p-2">Link Name</th>
+                <th class="p-2">Site Name</th>
+                <th class="p-2">Domain</th>
+                <th class="p-2">Created By</th>
+                <th class="p-2">Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for link in recent_links %}
+            <tr>
+                <td class="p-2">{{ link.link_name }}</td>
+                <td class="p-2">{{ link.site_name or '-' }}</td>
+                <td class="p-2">{{ link.domain or '-' }}</td>
+                <td class="p-2">{{ link.created_by }}</td>
+                <td class="p-2">{{ link.created_at_formatted }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="p-2 text-center">No links found</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

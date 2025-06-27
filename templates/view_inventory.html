@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}View Inventory{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">View Inventory</h1>
+<div class="mb-4 flex justify-between">
+    <form method="GET" action="{{ url_for('view_inventory') }}">
+        <input type="text" name="search" value="{{ search }}" placeholder="Search by Serial Number" class="p-2 border rounded">
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Search</button>
+    </form>
+    <a href="{{ url_for('export_inventory') }}" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Export to Excel</a>
+</div>
+<table class="w-full border-collapse bg-white shadow rounded">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="p-2">ID</th>
+            <th class="p-2">Item Name</th>
+            <th class="p-2">Serial Number</th>
+            <th class="p-2">Category</th>
+            <th class="p-2">Item Type</th>
+            <th class="p-2">Created By</th>
+            <th class="p-2">Created At</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items.items %}
+        <tr>
+            <td class="p-2">{{ item.id }}</td>
+            <td class="p-2">{{ item.item_name }}</td>
+            <td class="p-2">{{ item.serial_number or '-' }}</td>
+            <td class="p-2">{{ item.category }}</td>
+            <td class="p-2">{{ item.item_type }}</td>
+            <td class="p-2">{{ item.created_by }}</td>
+            <td class="p-2">{{ item.created_at_formatted }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="p-2 text-center">No items found</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if items.has_next or items.has_prev %}
+<div class="mt-4 flex justify-center space-x-2">
+    {% if items.has_prev %}
+        <a href="{{ url_for('view_inventory', page=items.prev_num, search=search) }}" class="p-2 bg-blue-600 text-white rounded">Previous</a>
+    {% endif %}
+    {% for num in items.iter_pages() %}
+        {% if num %}
+            {% if num == items.page %}
+                <span class="p-2 bg-gray-300 rounded">{{ num }}</span>
+            {% else %}
+                <a href="{{ url_for('view_inventory', page=num, search=search) }}" class="p-2 bg-blue-600 text-white rounded">{{ num }}</a>
+            {% endif %}
+        {% else %}
+            <span>...</span>
+        {% endif %}
+    {% endfor %}
+    {% if items.has_next %}
+        <a href="{{ url_for('view_inventory', page=items.next_num, search=search) }}" class="p-2 bg-blue-600 text-white rounded">Next</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

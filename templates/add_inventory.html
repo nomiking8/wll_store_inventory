@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Add Inventory{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Add Inventory Item</h1>
+<form method="POST" action="{{ url_for('add_inventory') }}" x-data="{ itemType: '' }">
+    {{ form.hidden_tag() }}
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+        <h2 class="text-xl font-semibold mb-4">Item Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="item_name" class="block text-gray-700">Item Name</label>
+                <input id="item_name" name="item_name" type="text" class="w-full p-2 border rounded" required>
+            </div>
+            <div>
+                <label for="serial_number" class="block text-gray-700">Serial Number</label>
+                <input id="serial_number" name="serial_number" type="text" class="w-full p-2 border rounded" required>
+            </div>
+            <div>
+                <label for="license_power_capacity" class="block text-gray-700">License/Power Capacity</label>
+                <input id="license_power_capacity" name="license_power_capacity" type="text" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label for="item_type" class="block text-gray-700">Item Type</label>
+                <select id="item_type" name="item_type" class="w-full p-2 border rounded" x-model="itemType" required>
+                    <option value="">Select Item Type</option>
+                    {% for type in valid_item_types %}
+                        <option value="{{ type }}">{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div x-show="itemType === 'Other'">
+                <label for="other_item_type" class="block text-gray-700">Specify Other Item Type</label>
+                <input id="other_item_type" name="other_item_type" type="text" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label for="band" class="block text-gray-700">Band</label>
+                <input id="band" name="band" type="text" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label for="frequency_range" class="block text-gray-700">Frequency Range</label>
+                <input id="frequency_range" name="frequency_range" type="text" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label for="item_in_stock" class="block text-gray-700">Item in Stock</label>
+                <input id="item_in_stock" name="item_in_stock" type="number" value="1" class="w-full p-2 border rounded" required>
+            </div>
+            <div>
+                <label for="moved_to" class="block text-gray-700">Moved To</label>
+                <input id="moved_to" name="moved_to" type="text" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label for="vendor" class="block text-gray-700">Vendor</label>
+                <input id="vendor" name="vendor" type="text" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label for="category" class="block text-gray-700">Category</label>
+                <select id="category" name="category" class="w-full p-2 border rounded" required>
+                    <option value="">Select Category</option>
+                    {% for cat in valid_categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="moved_from" class="block text-gray-700">Moved From</label>
+                <input id="moved_from" name="moved_from" type="text" class="w-full p-2 border rounded">
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Submit</button>
+</form>
+{% endblock %}
