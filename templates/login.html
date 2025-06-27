@@ -4,13 +4,14 @@
 <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Login to WLL Store Inventory</h2>
     <form method="POST" action="{{ url_for('login') }}">
+        {{ form.hidden_tag() }}
         <div class="mb-4">
             <label for="username" class="block text-gray-700 text-sm font-medium mb-2">Username</label>
-            <input id="username" name="username" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent" required>
+            {{ form.username(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent", required=True) }}
         </div>
         <div class="mb-6">
             <label for="password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
-            <input id="password" name="password" type="password" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent" required>
+            {{ form.password(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent", required=True) }}
         </div>
         <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-amber-500 text-white p-3 rounded-lg hover:from-pink-600 hover:to-amber-600 transition">Login</button>
     </form>

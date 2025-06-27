@@ -4,6 +4,7 @@
 <div class="mt-8">
     <h1 class="text-3xl font-bold mb-8 text-gray-800">Add Inventory Item</h1>
     <form method="POST" action="{{ url_for('add_inventory') }}" x-data="{ itemType: '' }">
+        {{ form.hidden_tag() if form else '' }}
         <div class="bg-white p-6 rounded-lg shadow-md mb-6">
             <h2 class="text-xl font-semibold mb-4 text-gray-700">Item Information</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
