@@ -1,105 +1,107 @@
 {% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<h1 class="text-xl sm:text-3xl font-bold mb-6">WLL Store Inventory Dashboard</h1>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-    <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
-        <h2 class="text-lg sm:text-xl font-semibold mb-2">Total Inventory Items</h2>
-        <p class="text-2xl sm:text-3xl">{{ total_items }}</p>
+<div class="mt-8">
+    <h1 class="text-3xl font-bold mb-8 text-gray-800">WLL Store Inventory Dashboard</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-gray-700">Total Inventory Items</h2>
+            <p class="text-3xl text-gray-800">{{ total_items }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-gray-700">Items by Category</h2>
+            {% for category, count in items_by_category.items() %}
+                <p class="text-gray-600">{{ category }}: {{ count }}</p>
+            {% endfor %}
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-gray-700">Items by Type</h2>
+            {% for type, count in items_by_type.items() %}
+                <p class="text-gray-600">{{ type }}: {{ count }}</p>
+            {% endfor %}
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-gray-700">Items by Vendor</h2>
+            {% for vendor, count in items_by_vendor.items() %}
+                <p class="text-gray-600">{{ vendor or 'Unknown' }}: {{ count }}</p>
+            {% endfor %}
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-gray-700">Total DRS Links</h2>
+            <p class="text-3xl text-gray-800">{{ total_links }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-gray-700">Links by Domain</h2>
+            {% for domain, count in links_by_domain.items() %}
+                <p class="text-gray-600">{{ domain or 'Unknown' }}: {{ count }}</p>
+            {% endfor %}
+        </div>
     </div>
-    <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
-        <h2 class="text-lg sm:text-xl font-semibold mb-2">Items by Category</h2>
-        {% for category, count in items_by_category.items() %}
-            <p class="text-sm sm:text-base">{{ category }}: {{ count }}</p>
-        {% endfor %}
+    <div class="mt-8">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Recent Inventory Items</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full bg-white shadow rounded-lg">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-700">
+                        <th class="p-3 text-left">Item Name</th>
+                        <th class="p-3 text-left">Serial Number</th>
+                        <th class="p-3 text-left">Category</th>
+                        <th class="p-3 text-left">Created By</th>
+                        <th class="p-3 text-left">Created At</th>
+                        <th class="p-3 text-left">Updated By</th>
+                        <th class="p-3 text-left">Updated At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent_items %}
+                    <tr class="border-t">
+                        <td class="p-3">{{ item.item_name }}</td>
+                        <td class="p-3">{{ item.serial_number or '-' }}</td>
+                        <td class="p-3">{{ item.category }}</td>
+                        <td class="p-3">{{ item.created_by }}</td>
+                        <td class="p-3">{{ item.created_at_formatted }}</td>
+                        <td class="p-3">{{ item.updated_by }}</td>
+                        <td class="p-3">{{ item.updated_at_formatted }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="p-3 text-center text-gray-600">No items found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
-        <h2 class="text-lg sm:text-xl font-semibold mb-2">Items by Type</h2>
-        {% for type, count in items_by_type.items() %}
-            <p class="text-sm sm:text-base">{{ type }}: {{ count }}</p>
-        {% endfor %}
-    </div>
-    <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
-        <h2 class="text-lg sm:text-xl font-semibold mb-2">Items by Vendor</h2>
-        {% for vendor, count in items_by_vendor.items() %}
-            <p class="text-sm sm:text-base">{{ vendor or 'Unknown' }}: {{ count }}</p>
-        {% endfor %}
-    </div>
-    <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
-        <h2 class="text-lg sm:text-xl font-semibold mb-2">Total DRS Links</h2>
-        <p class="text-2xl sm:text-3xl">{{ total_links }}</p>
-    </div>
-    <div class="bg-white p-4 sm:p-6 rounded-lg shadow">
-        <h2 class="text-lg sm:text-xl font-semibold mb-2">Links by Domain</h2>
-        {% for domain, count in links_by_domain.items() %}
-            <p class="text-sm sm:text-base">{{ domain or 'Unknown' }}: {{ count }}</p>
-        {% endfor %}
-    </div>
-</div>
-<div class="mt-6 sm:mt-8">
-    <h2 class="text-lg sm:text-2xl font-bold mb-4">Recent Inventory Items</h2>
-    <div class="overflow-x-auto">
-        <table class="w-full border-collapse bg-white shadow rounded text-sm sm:text-base">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="p-2 sm:p-3">Item Name</th>
-                    <th class="p-2 sm:p-3">Serial Number</th>
-                    <th class="p-2 sm:p-3">Category</th>
-                    <th class="p-2 sm:p-3">Created By</th>
-                    <th class="p-2 sm:p-3">Created At</th>
-                    <th class="p-2 sm:p-3">Updated By</th>
-                    <th class="p-2 sm:p-3">Updated At</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in recent_items %}
-                <tr>
-                    <td class="p-2 sm:p-3">{{ item.item_name }}</td>
-                    <td class="p-2 sm:p-3">{{ item.serial_number or '-' }}</td>
-                    <td class="p-2 sm:p-3">{{ item.category }}</td>
-                    <td class="p-2 sm:p-3">{{ item.created_by }}</td>
-                    <td class="p-2 sm:p-3">{{ item.created_at_formatted }}</td>
-                    <td class="p-2 sm:p-3">{{ item.updated_by }}</td>
-                    <td class="p-2 sm:p-3">{{ item.updated_at_formatted }}</td>
-                </tr>
-                {% else %}
-                <tr><td colspan="7" class="p-2 sm:p-3 text-center">No items found</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-<div class="mt-6 sm:mt-8">
-    <h2 class="text-lg sm:text-2xl font-bold mb-4">Recent DRS Links</h2>
-    <div class="overflow-x-auto">
-        <table class="w-full border-collapse bg-white shadow rounded text-sm sm:text-base">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="p-2 sm:p-3">Link Name</th>
-                    <th class="p-2 sm:p-3">Site Name</th>
-                    <th class="p-2 sm:p-3">Domain</th>
-                    <th class="p-2 sm:p-3">Created By</th>
-                    <th class="p-2 sm:p-3">Created At</th>
-                    <th class="p-2 sm:p-3">Updated By</th>
-                    <th class="p-2 sm:p-3">Updated At</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for link in recent_links %}
-                <tr>
-                    <td class="p-2 sm:p-3">{{ link.link_name }}</td>
-                    <td class="p-2 sm:p-3">{{ link.site_name or '-' }}</td>
-                    <td class="p-2 sm:p-3">{{ link.domain or '-' }}</td>
-                    <td class="p-2 sm:p-3">{{ link.created_by }}</td>
-                    <td class="p-2 sm:p-3">{{ link.created_at_formatted }}</td>
-                    <td class="p-2 sm:p-3">{{ link.updated_by }}</td>
-                    <td class="p-2 sm:p-3">{{ link.updated_at_formatted }}</td>
-                </tr>
-                {% else %}
-                <tr><td colspan="7" class="p-2 sm:p-3 text-center">No links found</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="mt-8">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Recent DRS Links</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full bg-white shadow rounded-lg">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-700">
+                        <th class="p-3 text-left">Link Name</th>
+                        <th class="p-3 text-left">Site Name</th>
+                        <th class="p-3 text-left">Domain</th>
+                        <th class="p-3 text-left">Created By</th>
+                        <th class="p-3 text-left">Created At</th>
+                        <th class="p-3 text-left">Updated By</th>
+                        <th class="p-3 text-left">Updated At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for link in recent_links %}
+                    <tr class="border-t">
+                        <td class="p-3">{{ link.link_name }}</td>
+                        <td class="p-3">{{ link.site_name or '-' }}</td>
+                        <td class="p-3">{{ link.domain or '-' }}</td>
+                        <td class="p-3">{{ link.created_by }}</td>
+                        <td class="p-3">{{ link.created_at_formatted }}</td>
+                        <td class="p-3">{{ link.updated_by }}</td>
+                        <td class="p-3">{{ link.updated_at_formatted }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="p-3 text-center text-gray-600">No links found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

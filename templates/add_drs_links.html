@@ -1,115 +1,116 @@
 {% extends "base.html" %}
 {% block title %}Add DRS Links{% endblock %}
 {% block content %}
-<h1 class="text-xl sm:text-3xl font-bold mb-6">Add DRS Link</h1>
-<form method="POST" action="{{ url_for('add_drs_links') }}">
-    {{ form.hidden_tag() }}
-    <div class="bg-white p-4 sm:p-6 rounded-lg shadow mb-6">
-        <h2 class="text-lg sm:text-xl font-semibold mb-4">Link Information</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-                <label for="link_name" class="block text-gray-700 text-sm sm:text-base">Link Name</label>
-                <input id="link_name" name="link_name" type="text" class="w-full p-2 border rounded text-sm sm:text-base" required>
-            </div>
-            <div>
-                <label for="site_name" class="block text-gray-700 text-sm sm:text-base">Site Name</label>
-                <input id="site_name" name="site_name" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="domain" class="block text-gray-700 text-sm sm:text-base">Domain</label>
-                <select id="domain" name="domain" class="w-full p-2 border rounded text-sm sm:text-base">
-                    <option value="">Select Domain</option>
-                    {% for dom in valid_domains %}
-                        <option value="{{ dom }}">{{ dom }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label for="site_id" class="block text-gray-700 text-sm sm:text-base">Site ID</label>
-                <input id="site_id" name="site_id" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="site_lic" class="block text-gray-700 text-sm sm:text-base">Site License</label>
-                <input id="site_lic" name="site_lic" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="site_type" class="block text-gray-700 text-sm sm:text-base">Site Type</label>
-                <input id="site_type" name="site_type" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="link_vendor" class="block text-gray-700 text-sm sm:text-base">Link Vendor</label>
-                <input id="link_vendor" name="link_vendor" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="tx_freq" class="block text-gray-700 text-sm sm:text-base">TX Frequency</label>
-                <input id="tx_freq" name="tx_freq" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="rx_freq" class="block text-gray-700 text-sm sm:text-base">RX Frequency</label>
-                <input id="rx_freq" name="rx_freq" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="tx_power" class="block text-gray-700 text-sm sm:text-base">TX Power</label>
-                <input id="tx_power" name="tx_power" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="mrmc_profile" class="block text-gray-700 text-sm sm:text-base">MRMC Profile</label>
-                <input id="mrmc_profile" name="mrmc_profile" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="vlan_numbers" class="block text-gray-700 text-sm sm:text-base">VLAN Numbers</label>
-                <input id="vlan_numbers" name="vlan_numbers" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="ports" class="block text-gray-700 text-sm sm:text-base">Ports</label>
-                <input id="ports" name="ports" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="e1_ports" class="block text-gray-700 text-sm sm:text-base">E1 Ports</label>
-                <input id="e1_ports" name="e1_ports" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="link_ips" class="block text-gray-700 text-sm sm:text-base">Link IPs</label>
-                <input id="link_ips" name="link_ips" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="link_capacity" class="block text-gray-700 text-sm sm:text-base">Link Capacity</label>
-                <input id="link_capacity" name="link_capacity" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="link_license" class="block text-gray-700 text-sm sm:text-base">Link License</label>
-                <input id="link_license" name="link_license" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="link_license_key" class="block text-gray-700 text-sm sm:text-base">Link License Key</label>
-                <input id="link_license_key" name="link_license_key" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="idu_sn" class="block text-gray-700 text-sm sm:text-base">IDU Serial Number</label>
-                <input id="idu_sn" name="idu_sn" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="odu_sn" class="block text-gray-700 text-sm sm:text-base">ODU Serial Number</label>
-                <input id="odu_sn" name="odu_sn" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="dish_size" class="block text-gray-700 text-sm sm:text-base">Dish Size</label>
-                <input id="dish_size" name="dish_size" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="tower_height" class="block text-gray-700 text-sm sm:text-base">Tower Height</label>
-                <input id="tower_height" name="tower_height" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div>
-                <label for="dish_height" class="block text-gray-700 text-sm sm:text-base">Dish Height</label>
-                <input id="dish_height" name="dish_height" type="text" class="w-full p-2 border rounded text-sm sm:text-base">
-            </div>
-            <div class="col-span-1 sm:col-span-2">
-                <label for="remarks" class="block text-gray-700 text-sm sm:text-base">Remarks</label>
-                <textarea id="remarks" name="remarks" class="w-full p-2 border rounded text-sm sm:text-base"></textarea>
+<div class="mt-8">
+    <h1 class="text-3xl font-bold mb-8 text-gray-800">Add DRS Link</h1>
+    <form method="POST" action="{{ url_for('add_drs_links') }}">
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Link Information</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="link_name" class="block text-gray-700 text-sm font-medium mb-2">Link Name</label>
+                    <input id="link_name" name="link_name" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent" required>
+                </div>
+                <div>
+                    <label for="site_name" class="block text-gray-700 text-sm font-medium mb-2">Site Name</label>
+                    <input id="site_name" name="site_name" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="domain" class="block text-gray-700 text-sm font-medium mb-2">Domain</label>
+                    <select id="domain" name="domain" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                        <option value="">Select Domain</option>
+                        {% for dom in valid_domains %}
+                            <option value="{{ dom }}">{{ dom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="site_id" class="block text-gray-700 text-sm font-medium mb-2">Site ID</label>
+                    <input id="site_id" name="site_id" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="site_lic" class="block text-gray-700 text-sm font-medium mb-2">Site License</label>
+                    <input id="site_lic" name="site_lic" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="site_type" class="block text-gray-700 text-sm font-medium mb-2">Site Type</label>
+                    <input id="site_type" name="site_type" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="link_vendor" class="block text-gray-700 text-sm font-medium mb-2">Link Vendor</label>
+                    <input id="link_vendor" name="link_vendor" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="tx_freq" class="block text-gray-700 text-sm font-medium mb-2">TX Frequency</label>
+                    <input id="tx_freq" name="tx_freq" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="rx_freq" class="block text-gray-700 text-sm font-medium mb-2">RX Frequency</label>
+                    <input id="rx_freq" name="rx_freq" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="tx_power" class="block text-gray-700 text-sm font-medium mb-2">TX Power</label>
+                    <input id="tx_power" name="tx_power" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="mrmc_profile" class="block text-gray-700 text-sm font-medium mb-2">MRMC Profile</label>
+                    <input id="mrmc_profile" name="mrmc_profile" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="vlan_numbers" class="block text-gray-700 text-sm font-medium mb-2">VLAN Numbers</label>
+                    <input id="vlan_numbers" name="vlan_numbers" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="ports" class="block text-gray-700 text-sm font-medium mb-2">Ports</label>
+                    <input id="ports" name="ports" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="e1_ports" class="block text-gray-700 text-sm font-medium mb-2">E1 Ports</label>
+                    <input id="e1_ports" name="e1_ports" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="link_ips" class="block text-gray-700 text-sm font-medium mb-2">Link IPs</label>
+                    <input id="link_ips" name="link_ips" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="link_capacity" class="block text-gray-700 text-sm font-medium mb-2">Link Capacity</label>
+                    <input id="link_capacity" name="link_capacity" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="link_license" class="block text-gray-700 text-sm font-medium mb-2">Link License</label>
+                    <input id="link_license" name="link_license" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="link_license_key" class="block text-gray-700 text-sm font-medium mb-2">Link License Key</label>
+                    <input id="link_license_key" name="link_license_key" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="idu_sn" class="block text-gray-700 text-sm font-medium mb-2">IDU Serial Number</label>
+                    <input id="idu_sn" name="idu_sn" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="odu_sn" class="block text-gray-700 text-sm font-medium mb-2">ODU Serial Number</label>
+                    <input id="odu_sn" name="odu_sn" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="dish_size" class="block text-gray-700 text-sm font-medium mb-2">Dish Size</label>
+                    <input id="dish_size" name="dish_size" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="tower_height" class="block text-gray-700 text-sm font-medium mb-2">Tower Height</label>
+                    <input id="tower_height" name="tower_height" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="dish_height" class="block text-gray-700 text-sm font-medium mb-2">Dish Height</label>
+                    <input id="dish_height" name="dish_height" type="text" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent">
+                </div>
+                <div class="col-span-1 sm:col-span-2">
+                    <label for="remarks" class="block text-gray-700 text-sm font-medium mb-2">Remarks</label>
+                    <textarea id="remarks" name="remarks" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent"></textarea>
+                </div>
             </div>
         </div>
-    </div>
-    <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 text-sm sm:text-base">Submit</button>
-</form>
+        <button type="submit" class="bg-gradient-to-r from-pink-500 to-amber-500 text-white p-3 rounded-lg hover:from-pink-600 hover:to-amber-600 transition">Submit</button>
+    </form>
+</div>
 {% endblock %}

@@ -4,7 +4,10 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, make_response, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
 from html import escape
 import logging
 import re
@@ -41,6 +44,12 @@ logger.setLevel(logging.DEBUG)
 VALID_CATEGORIES = ['IDU', 'ODU', 'Power', 'General', 'Other']
 VALID_ITEM_TYPES = ['IDU', 'ODU', 'Power', 'General', 'Other']
 VALID_DOMAINS = ['Chakwal', 'Jhelum']
+
+# Login Form
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
 
 # Helper functions
 def login_required(f):
@@ -131,41 +140,38 @@ class DRSLink(db.Model):
 # Routes
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form.get('username', '').lower().strip()
-        password = request.form.get('password', '').strip()
-
-        if not username or not password:
-            flash('Username and password are required')
-            return render_template('login.html')
+    form = LoginForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        username = form.username.data.lower().strip()
+        password = form.password.data.strip()
 
         try:
             user = User.query.filter_by(username=username).first()
             if not user:
                 flash('Invalid username')
-                return render_template('login.html')
+                return render_template('login.html', form=form)
 
             if not check_password_hash(user.password, password):
                 flash('Invalid password')
-                return render_template('login.html')
+                return render_template('login.html', form=form)
 
             session['user_id'] = str(user.uid)
             session['username'] = user.username
             session['domain'] = user.domain
-            flash('Login successful!')
+            flash('Login successful!', 'success')
             return redirect(url_for('index'))
         except Exception as e:
             logger.error(f"Login failed: {str(e)}")
             flash(f'Login failed: {str(e)}')
-            return render_template('login.html')
+            return render_template('login.html', form=form)
 
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 @app.route('/logout')
 @login_required
 def logout():
     session.clear()
-    flash('Logged out successfully')
+    flash('Logged out successfully', 'success')
     return redirect(url_for('login'))
 
 @app.route('/')
