@@ -1,74 +1,75 @@
 {% extends "base.html" %}
 {% block title %}Edit Inventory Item{% endblock %}
 {% block content %}
-<div class="max-w-4xl mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-8 text-white text-center bg-gradient-to-r from-indigo-600 to-purple-600 p-4 rounded-lg shadow-lg">Edit Inventory Item</h1>
-    <form method="POST" class="bg-white shadow-xl rounded-lg p-8">
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Edit Inventory Item</h1>
+
+    <form method="POST" class="bg-white p-6 rounded-lg shadow">
         {{ form.hidden_tag() }}
-        <!-- General Information -->
-        <div class="mb-8 bg-teal-50 p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-4 text-teal-800 text-center">Inventory Details</h2>
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-4">Inventory Details</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="domain" class="block text-gray-700 mb-2 font-medium">Domain</label>
+                    <label class="block text-sm font-medium text-gray-700">Domain</label>
                     {% if user_domain == 'All' %}
-                        {{ form.domain(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                        {{ form.domain(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
                     {% else %}
-                        <input type="text" id="domain" name="domain" value="{{ user_domain }}" class="w-full p-3 border rounded-lg bg-gray-100" readonly>
+                        <input type="text" value="{{ user_domain }}" class="w-full p-3 border rounded-lg bg-gray-100" readonly>
+                        {{ form.domain(hidden=True, value=user_domain) }}
                     {% endif %}
                 </div>
                 <div>
-                    <label for="category" class="block text-gray-700 mb-2 font-medium">Category</label>
-                    {{ form.category(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white", required=True) }}
+                    <label class="block text-sm font-medium text-gray-700">Category</label>
+                    {{ form.category(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
                 </div>
                 <div>
-                    <label for="item_type" class="block text-gray-700 mb-2 font-medium">Item Type</label>
-                    {{ form.item_type(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white", required=True) }}
+                    <label class="block text-sm font-medium text-gray-700">Item Type</label>
+                    {{ form.item_type(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
                 </div>
                 <div>
-                    <label for="other_item_type" class="block text-gray-700 mb-2 font-medium">Specify Other Item Type</label>
-                    {{ form.other_item_type(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                    <label class="block text-sm font-medium text-gray-700">Specify Other Item Type</label>
+                    {{ form.other_item_type(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
                 </div>
                 <div>
-                    <label for="item_name" class="block text-gray-700 mb-2 font-medium">Item Name</label>
-                    {{ form.item_name(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white", required=True) }}
+                    <label class="block text-sm font-medium text-gray-700">Item Name</label>
+                    {{ form.item_name(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
                 </div>
                 <div>
-                    <label for="serial_number" class="block text-gray-700 mb-2 font-medium">Serial Number</label>
-                    {{ form.serial_number(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white", required=True) }}
+                    <label class="block text-sm font-medium text-gray-700">Serial Number</label>
+                    {{ form.serial_number(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
                 </div>
                 <div>
-                    <label for="license_power_capacity" class="block text-gray-700 mb-2 font-medium">License/Power Capacity</label>
-                    {{ form.license_power_capacity(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                    <label class="block text-sm font-medium text-gray-700">License/Power Capacity</label>
+                    {{ form.license_power_capacity(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
                 </div>
                 <div>
-                    <label for="band" class="block text-gray-700 mb-2 font-medium">Band</label>
-                    {{ form.band(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                    <label class="block text-sm font-medium text-gray-700">Band</label>
+                    {{ form.band(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
                 </div>
                 <div>
-                    <label for="frequency_range" class="block text-gray-700 mb-2 font-medium">Frequency Range</label>
-                    {{ form.frequency_range(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                    <label class="block text-sm font-medium text-gray-700">Frequency Range</label>
+                    {{ form.frequency_range(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
                 </div>
                 <div>
-                    <label for="item_in_stock" class="block text-gray-700 mb-2 font-medium">Item in Stock</label>
-                    {{ form.item_in_stock(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                    <label class="block text-sm font-medium text-gray-700">Item in Stock</label>
+                    {{ form.item_in_stock(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
                 </div>
                 <div>
-                    <label for="moved_from" class="block text-gray-700 mb-2 font-medium">Moved From</label>
-                    {{ form.moved_from(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                    <label class="block text-sm font-medium text-gray-700">Moved From</label>
+                    {{ form.moved_from(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
                 </div>
                 <div>
-                    <label for="moved_to" class="block text-gray-700 mb-2 font-medium">Moved To</label>
-                    {{ form.moved_to(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                    <label class="block text-sm font-medium text-gray-700">Moved To</label>
+                    {{ form.moved_to(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
                 </div>
                 <div>
-                    <label for="vendor" class="block text-gray-700 mb-2 font-medium">Vendor</label>
-                    {{ form.vendor(class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white") }}
+                    <label class="block text-sm font-medium text-gray-700">Vendor</label>
+                    {{ form.vendor(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
                 </div>
             </div>
         </div>
-        <div class="text-center">
-            <button type="submit" class="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 shadow-md transition duration-200">Update</button>
+        <div>
+            {{ form.submit(class="bg-fuchsia-600 text-white px-4 py-2 rounded-lg hover:bg-fuchsia-700 transition") }}
         </div>
     </form>
 </div>
