@@ -625,18 +625,18 @@ def edit_drs_links(id):
 
             if not link.link_name:
                 flash('Link name is required')
-                return render_template('edit_drs_links.html', form=form, user_domain=user_domain)
+                return render_template('edit_drs_links.html', form=form, link=link, user_domain=user_domain)
 
             db.session.commit()
             flash('DRS Link updated successfully!', 'success')
             return redirect(url_for('view_drs_links'))
         
-        return render_template('edit_drs_links.html', form=form, user_domain=user_domain)
+        return render_template('edit_drs_links.html', form=form, link=link, user_domain=user_domain)
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error in edit_drs_links: {str(e)}")
         flash(f"Error editing DRS link: {str(e)}")
-        return render_template('edit_drs_links.html', form=form, user_domain=user_domain)
+        return render_template('edit_drs_links.html', form=form, link=link, user_domain=user_domain)
 
 @app.route('/delete_drs_links/<int:id>', methods=['POST'])
 @login_required
