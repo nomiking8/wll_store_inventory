@@ -1,76 +1,109 @@
 {% extends "base.html" %}
 {% block title %}Edit Inventory Item{% endblock %}
 {% block content %}
-<div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Edit Inventory Item</h1>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-fuchsia-600 text-center mb-6">Edit Inventory Item</h1>
 
-    <form method="POST" class="bg-white p-6 rounded-lg shadow">
+    <form method="POST" class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
         {{ form.hidden_tag() }}
-        <div class="mb-6">
-            <h2 class="text-xl font-semibold mb-4">Inventory Details</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Domain</label>
-                    {% if user_domain == 'All' %}
-                        {{ form.domain(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
-                    {% else %}
-                        <input type="text" value="{{ user_domain }}" class="w-full p-3 border rounded-lg bg-gray-100" readonly>
-                        {{ form.domain(hidden=True, value=user_domain) }}
-                    {% endif %}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Category</label>
-                    {{ form.category(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Item Type</label>
-                    {{ form.item_type(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Specify Other Item Type</label>
-                    {{ form.other_item_type(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Item Name</label>
-                    {{ form.item_name(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Serial Number</label>
-                    {{ form.serial_number(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">License/Power Capacity</label>
-                    {{ form.license_power_capacity(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Band</label>
-                    {{ form.band(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Frequency Range</label>
-                    {{ form.frequency_range(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Item in Stock</label>
-                    {{ form.item_in_stock(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Moved From</label>
-                    {{ form.moved_from(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Moved To</label>
-                    {{ form.moved_to(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Vendor</label>
-                    {{ form.vendor(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
-                </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Domain</label>
+                {% if user_domain == 'All' %}
+                    {{ form.domain(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
+                {% else %}
+                    <input type="text" value="{{ user_domain }}" class="w-full p-3 border rounded-lg bg-gray-100" readonly>
+                    {{ form.domain(hidden=True, value=user_domain) }}
+                {% endif %}
             </div>
-        </div>
-        <div>
-            {{ form.submit(class="bg-fuchsia-600 text-white px-4 py-2 rounded-lg hover:bg-fuchsia-700 transition") }}
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Category</label>
+                {{ form.category(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Item Type</label>
+                {{ form.item_type(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", id="item_type", required=True) }}
+            </div>
+
+            <div id="other_item_type_container" class="hidden">
+                <label class="block text-gray-700 font-semibold mb-2">Specify Other Item Type</label>
+                {{ form.other_item_type(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Item Name</label>
+                {{ form.item_name(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Serial Number</label>
+                {{ form.serial_number(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white", required=True) }}
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">License/Power Capacity</label>
+                {{ form.license_power_capacity(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Band</label>
+                {{ form.band(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Frequency Range</label>
+                {{ form.frequency_range(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Item in Stock</label>
+                {{ form.item_in_stock(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Moved From</label>
+                {{ form.moved_from(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Moved To</label>
+                {{ form.moved_to(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-semibold mb-2">Vendor</label>
+                {{ form.vendor(class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-fuchsia-400 focus:border-transparent bg-white") }}
+            </div>
+
+            <div class="text-center mt-6">
+                {{ form.submit(class="bg-fuchsia-600 text-white px-6 py-3 rounded-lg hover:bg-fuchsia-700 transition") }}
+            </div>
         </div>
     </form>
 </div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const itemTypeSelect = document.getElementById('item_type');
+        const otherItemTypeContainer = document.getElementById('other_item_type_container');
+
+        function toggleOtherItemType() {
+            if (itemTypeSelect.value === 'Other') {
+                otherItemTypeContainer.classList.remove('hidden');
+            } else {
+                otherItemTypeContainer.classList.add('hidden');
+            }
+        }
+
+        // Run on page load
+        toggleOtherItemType();
+
+        // Run on item type change
+        itemTypeSelect.addEventListener('change', toggleOtherItemType);
+    });
+</script>
+{% endblock %}
 {% endblock %}
